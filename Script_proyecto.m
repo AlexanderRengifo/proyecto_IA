@@ -1,9 +1,7 @@
 clear; clc; close all;
 % Leer el archivo de datos
-data = readmatrix('Encuesta.xlsx');
+data = readmatrix('datasetPolítica.xlsx');
 
-% Excluir la primera fila (etiquetas)
-data = data(2:end, :);
 
 % Obtener las variables independientes (X) y las variables dependientes (y1, y2)
 X = data(:, 1:end-2);
@@ -121,7 +119,7 @@ end
 
 % Inicializar vector de predicciones
 y_hat = zeros(size(X_test, 1), 1);
-
+posteriors = zeros(size(y1_test, 1),1);
 % Probabilidad marginal de que una persona no vote por Correa (C=0)
 PC_NO = 1 - PC_SI;
 
@@ -141,7 +139,7 @@ for i = 1:size(X_test, 1)
     
     % Calcular la posterior probability P(C=1|x_new) usando la fórmula de Bayes
     posterior_C1 = (likelihood_C1 * PC_SI) / evidence;
-    
+    posteriors(i) = posterior_C1;
     % Asignar la predicción correspondiente
     if posterior_C1 >= 0.5
         y_hat(i) = 1;
@@ -151,9 +149,8 @@ for i = 1:size(X_test, 1)
 end
 
 % Imprimir la tabla
-fprintf('Persona\t| Correísta Real\t| Predicción Naive Bayes\n');
+fprintf('Persona\t| Correísta Real\t| Posterior\t| Predicción Naive Bayes\n');
 fprintf('------------------------------------------------------\n');
 for i = 1:size(X_test, 1)
-    fprintf('%d\t| %d\t\t| %d\n', i, y2_test(i), y_hat(i));
+    fprintf('%d\t| %d\t\t| %d\t\t| \t%d\n', i, y2_test(i), posteriors(i), y_hat(i));
 end
-
